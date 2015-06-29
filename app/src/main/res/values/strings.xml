@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Bluetooth</string>
+    <string name="Text">Status: ------</string>
+    <string name="switch_name">Bluetooth</string>
+    <string name="List">Paired Devices</string>
+    <string name="Find">Scan for Devices</string>
+</resources>
