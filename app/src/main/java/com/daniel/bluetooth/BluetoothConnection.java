@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -239,7 +240,12 @@ public class BluetoothConnection {
                             }
                         });
                     }
+                    Log.e("ERROR", "BLUETOOTH FAILED 1");
                 } catch (IOException e) {
+                    updateState(IDLE);
+                    closeSocket(_btSocket);
+                    _btSocket = null;
+                    _btStream = null;
                     break;
                 }
             }
@@ -248,7 +254,11 @@ public class BluetoothConnection {
         public void write(String s) {
             try {
                 //write to output stream
-                _oStream.write(Hex.stringToHex(s));
+                //_oStream.write(Hex.stringToHex(s));
+                //                A   T     Z
+                byte[] bytes = {0x41,0x54, 0x5A, 0x0D};
+                _oStream.write(bytes);
+
             } catch (IOException e) {
                 //disconnected, clean up mess
                 updateState(IDLE);

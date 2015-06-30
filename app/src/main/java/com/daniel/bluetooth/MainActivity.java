@@ -101,6 +101,8 @@ public class MainActivity extends Activity implements BluetoothConnection.Blueto
         //link list view to connection event on chosen adapter
         _lv_devices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(_btConn.getState() == BluetoothConnection.SCANNING)
+                    onScanButtonClick(null);
                 _btConn.connectToDevice(_devices.get(i));
             }
         });
