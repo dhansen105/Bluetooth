@@ -143,6 +143,7 @@ public class BluetoothConnection {
     private void setupStreamConnection(BluetoothSocket btSocket) {
         _btSocket = btSocket;
         _btStream =  new BluetoothStreamConnection();
+        _btStream.start();
     }
 
 
@@ -224,23 +225,24 @@ public class BluetoothConnection {
         }
 
         public void run() {
-            final byte[] buffer = new byte[1024];  // buffer store for the stream
-
             // Keep listening to the InputStream until an exception occurs
             while (true) {
                 try {
-                    // Read from the InputStream
-                    final int bytes = _iStream.read(buffer);
+                    byte[] packet = new byte[20];
 
+                    // Read from the InputStream
+                    int bytes = _iStream.read(packet);
                     if(bytes > 0) {
+                        //convert to string
+                        final String x = Hex.hexToString(packet);
+
                         // Send the obtained bytes to the UI activity
                         ((MainActivity) _context).runOnUiThread(new Runnable() {
                             public void run() {
-                                _btListener.dataReceived(Hex.hexToString(buffer));
+                                _btListener.dataReceived(x);
                             }
                         });
                     }
-                    Log.e("ERROR", "BLUETOOTH FAILED 1");
                 } catch (IOException e) {
                     updateState(IDLE);
                     closeSocket(_btSocket);
@@ -253,12 +255,10 @@ public class BluetoothConnection {
 
         public void write(String s) {
             try {
-                //write to output stream
-                //_oStream.write(Hex.stringToHex(s));
-                //                A   T     Z
-                byte[] bytes = {0x41,0x54, 0x5A, 0x0D};
-                _oStream.write(bytes);
+                s = s.concat("\r");
+                byte[] bytes = Hex.stringToHex(s);
 
+                _oStream.write(bytes);
             } catch (IOException e) {
                 //disconnected, clean up mess
                 updateState(IDLE);

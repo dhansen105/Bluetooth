@@ -7,28 +7,18 @@ public class Hex {
 
     /** CONVERTS A STRING TO A BYTE ARRAY (HEX) */
     public static byte[] stringToHex(String s) {
-        int len = s.length();
-        byte[] data = new byte[len/2];
-
-        for(int i = 0; i < len; i+=2){
-            data[i/2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        char[] buffer = s.toCharArray();
+        byte[] b = new byte[buffer.length];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) buffer[i];
         }
 
-        return data;
+        return b;
     }
 
 
     /** CONVERTS A BYTE ARRAY (HEX) TO A STRING */
     public static String hexToString(byte[] bytes) {
-        char[] hexChars = new char[bytes.length*2];
-        int v;
-
-        for(int j=0; j < bytes.length; j++) {
-            v = bytes[j] & 0xFF;
-            hexChars[j*2] = hexArray[v>>>4];
-            hexChars[j*2 + 1] = hexArray[v & 0x0F];
-        }
-
-        return new String(hexChars);
+        return new String(bytes);
     }
 }

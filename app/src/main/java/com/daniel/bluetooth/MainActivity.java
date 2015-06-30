@@ -159,7 +159,7 @@ public class MainActivity extends Activity implements BluetoothConnection.Blueto
         }
 
         //add sent data to list view
-        _dataArrayAdapter.add("--> " + send);
+        _dataArrayAdapter.add(send);
         _dataArrayAdapter.notifyDataSetChanged();
 
         //send the data
@@ -172,8 +172,8 @@ public class MainActivity extends Activity implements BluetoothConnection.Blueto
         if(_ui_state != SEND_UI)
             return;
 
-        _dataArrayAdapter.add("<-- " + data);
-        _btArrayAdapter.notifyDataSetChanged();
+        _dataArrayAdapter.add(data);
+        _dataArrayAdapter.notifyDataSetChanged();
     }
 
 
