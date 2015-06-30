@@ -18,13 +18,13 @@ import java.util.UUID;
 
 public class BluetoothConnection {
     //CONSTANTS
-    public final int UNSUPPORTED = -1;
-    public final int SUPPORTED = 0;
-    public final int IDLE = 1;
-    public final int OFF = 2;
-    public final int SCANNING = 3;
-    public final int CONNECTING = 4;
-    public final int CONNECTED = 5;
+    public static final int UNSUPPORTED = -1;
+    public static final int SUPPORTED = 0;
+    public static final int IDLE = 1;
+    public static final int OFF = 2;
+    public static final int SCANNING = 3;
+    public static final int CONNECTING = 4;
+    public static final int CONNECTED = 5;
 
 
     //MEMBERS
@@ -40,10 +40,10 @@ public class BluetoothConnection {
 
 
     /** CONSTRUCTOR FOR BLUETOOTH CONNECTION
-     * @param context Context from the Activity to be updated
+     * @param btListener listener that implements interface
      * @param uuid uuid string */
-    public BluetoothConnection(Context context, String uuid, BluetoothListener btListener) {
-        _context = context;
+    public BluetoothConnection(String uuid, BluetoothListener btListener) {
+        _context = (Context)btListener;
         _uuid = UUID.fromString(uuid);
         _scannedDevices = new ArrayList<>();
         _btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -52,17 +52,19 @@ public class BluetoothConnection {
         _btStream = null;
         _btSocket = null;
 
-        //update state of bluetooth
+        //update state of bluetooth without notifying ui because
+        // ui still doesn't have reference to this object.
         if (_btAdapter == null) //bluetooth adapter doesn't exist
-            updateState(UNSUPPORTED);
+            _state = UNSUPPORTED;
         else {
             //adapter already active
             if(_btAdapter.isEnabled())
-                updateState(IDLE);
+                _state = IDLE;
             else//adapter off
-                updateState(OFF);
+                _state = OFF;
         }
     }
+
 
     /** TURNS ON THE BLUETOOTH ADAPTER */
     public void bluetoothOn() {
@@ -110,9 +112,11 @@ public class BluetoothConnection {
 
     /** CANCELS SCANNING FOR DISCOVERABLE DEVICES */
     public void cancelScanForDevices() {
-        if(_state == SCANNING)
+        if(_state != SCANNING)
+            return;
 
         if(_btAdapter.isDiscovering()) {
+            _context.unregisterReceiver(_broadcastReceiver);
             _btAdapter.cancelDiscovery();
             updateState(IDLE);
         }
@@ -295,8 +299,8 @@ public class BluetoothConnection {
     }
 
 
-    /** RETURNS THE STATUS OF THE BLUETOOTH CONNECTION */
-    public int getStatus() {
+    /** RETURNS THE STATE OF THE BLUETOOTH CONNECTION */
+    public int getState() {
         return _state;
     }
 
