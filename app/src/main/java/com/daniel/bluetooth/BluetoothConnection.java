@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -225,23 +226,33 @@ public class BluetoothConnection {
         }
 
         public void run() {
+            int i = 0;
+
             // Keep listening to the InputStream until an exception occurs
             while (true) {
                 try {
-                    byte[] packet = new byte[20];
+                    final byte[] packet = new byte[50];
 
                     // Read from the InputStream
                     int bytes = _iStream.read(packet);
                     if(bytes > 0) {
-                        //convert to string
-                        final String x = Hex.hexToString(packet);
+                        i = 0;
+                        for(Byte b : packet) {
+                            i++;
 
-                        // Send the obtained bytes to the UI activity
-                        ((MainActivity) _context).runOnUiThread(new Runnable() {
-                            public void run() {
-                                _btListener.dataReceived(x);
+                            if(b == 0x0D){
+                                final int x = i;
+
+                                //TODO NEED TO IMPLEMENT BUFFER
+
+                                // Send the obtained bytes to the UI activity
+                                ((MainActivity) _context).runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        _btListener.dataReceived(Hex.hexToString(Arrays.copyOfRange(packet, 0, x)));
+                                    }
+                                });
                             }
-                        });
+                        }
                     }
                 } catch (IOException e) {
                     updateState(IDLE);
@@ -252,6 +263,7 @@ public class BluetoothConnection {
                 }
             }
         }
+
 
         public void write(String s) {
             try {
