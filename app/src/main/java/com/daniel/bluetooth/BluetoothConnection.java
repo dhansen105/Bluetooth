@@ -227,6 +227,8 @@ public class BluetoothConnection {
 
         public void run() {
             int i = 0;
+            ByteArray bytes = new ByteArray();
+            bytes.setDelimiter((byte)0x0D);
 
             // Keep listening to the InputStream until an exception occurs
             while (true) {
@@ -234,24 +236,19 @@ public class BluetoothConnection {
                     final byte[] packet = new byte[50];
 
                     // Read from the InputStream
-                    int bytes = _iStream.read(packet);
-                    if(bytes > 0) {
-                        i = 0;
-                        for(Byte b : packet) {
-                            i++;
+                    int num_bytes = _iStream.read(packet);
+                    if(num_bytes > 0) {
+                        bytes.add(packet);
+                        final byte[] collect = bytes.removeUntilDelimiter();
 
-                            if(b == 0x0D){
-                                final int x = i;
-
-                                //TODO NEED TO IMPLEMENT BUFFER
-
-                                // Send the obtained bytes to the UI activity
-                                ((MainActivity) _context).runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        _btListener.dataReceived(Hex.hexToString(Arrays.copyOfRange(packet, 0, x)));
-                                    }
-                                });
-                            }
+                        //if there was a result with a delimiter
+                        if(collect != null) {
+                            // Send the obtained num_bytes to the UI activity
+                            ((MainActivity) _context).runOnUiThread(new Runnable() {
+                                public void run() {
+                                    _btListener.dataReceived(Hex.hexToString(collect));
+                                }
+                            });
                         }
                     }
                 } catch (IOException e) {
